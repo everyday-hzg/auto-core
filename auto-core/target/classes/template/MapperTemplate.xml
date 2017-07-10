@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="${bussPackage}.${entityPackage}.dao.${className}Dao">
+	<!-- Result Map ${bussPackage}.${entityPackage}.model.po.${className}Po" -->
+	<resultMap id="PoResultMap" type="${className}Po">
+		$!{clums}
+	</resultMap>
+
+	<!-- Result Map ${bussPackage}.${entityPackage}.model.bo.${className}Bo -->
+	<resultMap id="BoResultMap" type="${className}Bo">
+		$!{clums}
+	</resultMap>
+
+	<!-- Result Map ${bussPackage}.${entityPackage}.model.o.${className}Vo -->
+	<resultMap id="VoResultMap" type="${className}Vo">
+		$!{clums}
+	</resultMap>
+
+	<!-- $!{tableName} table all fields -->
+	<sql id="Po_Column_List">
+		$!{SQL.columnFields}
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="Po_Where_Clause">
+		<where>
+			$!{SQL.selectiveSql}
+		</where>
+	</sql>
+
+	<!-- 插入记录 [说明：如果要返回当前对象，需要如下配置：<insert id="addVo" parameterType="Object" 
+		useGeneratedKeys="true" keyProperty="id">] -->
+	<insert id="addPo" parameterType="VoResultMap">
+		#if ($keyType =='02')
+		<selectKey resultType="java.lang.Integer" order="AFTER"
+			keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		#end
+		$!{SQL.insert}
+	</insert>
+
+	<!-- 多条件删除记录 -->
+	<select id="delPo" resultType="java.lang.Integer" parameterType="VoResultMap">
+		delete from ${tableName}
+		<include refid="Po_Where_Clause" />
+	</select>
+
+	<!-- 删除记录 -->
+	<delete id="delPoByPk" parameterType="Object">
+		$!{SQL.delete}
+	</delete>
+
+	<!--批量删除 -->
+	<delete id="delPoList" parameterType="java.util.List">
+		$!{SQL.deleteList}
+		<foreach item="idItem" collection="list" index="index" open="("
+			separator="," close=")">
+			#{idItem}
+		</foreach>
+	</delete>
+
+	<!-- 根据id，修改记录 -->
+	<update id="modPo" parameterType="Object">
+		$!{SQL.update}
+	</update>
+	<!-- 修改记录，只修改只不为空的字段 -->
+	<update id="modPoNotNull" parameterType="Object">
+		$!{SQL.updateSelective}
+	</update>
+
+	<!-- 根据id查询 ${codeName} -->
+	<select id="getPoByPk" resultMap="BoResultMap" parameterType="VoResultMap">
+		select
+		<include refid="Po_Column_List" />
+		from ${tableName}
+		where id = #{id}
+	</select>
+
+	<!-- ${codeName} 列表总数 -->
+	<select id="getPoCount" resultType="java.lang.Long"
+		parameterType="Object">
+		select count(1) from ${tableName}
+		<include refid="Po_Where_Clause" />
+	</select>
+
+	<!-- 查询${codeName}列表 -->
+	<select id="getPoList" resultMap="BoResultMap" parameterType="VoResultMap">
+		select
+		<include refid="Po_Column_List" />
+		from ${tableName}
+		<include refid="Po_Where_Clause" />
+	</select>
+
+</mapper>
